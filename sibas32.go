@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"time"
 
+	"github.com/tarm/serial"
 	"gopkg.in/yaml.v2"
-	//"github.com/tarm/serial"
 )
 
 // SerialOptT struct used to keep the YAML data
@@ -41,6 +42,26 @@ func main() {
 	fmt.Printf("\tParity: %s\n", serialOpts.SerialConf.Parity)
 
 	// Start serial port
+	cSerial := new(serial.Config)
+	cSerial.Name = serialOpts.SerialConf.Device
+	cSerial.Baud = serialOpts.SerialConf.Baud
+	cSerial.StopBits = serial.StopBits(serialOpts.SerialConf.Stopbits)
+	cSerial.Parity = serial.Parity(serialOpts.SerialConf.Parity[0])
+	cSerial.ReadTimeout = time.Millisecond * 500
+
+	fmt.Println("Opening serial port")
+
+	sfd, err := serial.OpenPort(cSerial)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	fmt.Println("Closing serial port")
+
+	err = sfd.Close()
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	// Wait for command
 
